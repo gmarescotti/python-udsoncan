@@ -191,7 +191,10 @@ from .TesterPresent import TesterPresent
 from .ControlDTCSetting import ControlDTCSetting
 from .ResponseOnEvent import ResponseOnEvent
 from .LinkControl import LinkControl
+from .ReadDTCByStatus import ReadDTCByStatus
+from .ReadDTCByStatus import ReadDTCByStatus_recharge
 from .ReadDataByIdentifier import ReadDataByIdentifier
+from .LocalReadDataByIdentifier import LocalReadDataByIdentifier
 from .WriteDataByIdentifier import WriteDataByIdentifier
 from .ReadMemoryByAddress import ReadMemoryByAddress
 from .InputOutputControlByIdentifier import InputOutputControlByIdentifier

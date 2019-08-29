@@ -241,6 +241,7 @@ class Response:
 
             data_start=1
             response.positive = True
+            if len(payload) < 2: payload+=b'\x00' # GGG
             if len(payload) < 2 and response.service.has_response_data() :
                 response.valid = False
                 response.positive = False
