@@ -50,8 +50,11 @@ class RoutineControl(BaseService):
             if not isinstance(data, bytes):
                 raise ValueError('data must be a valid bytes object')
 
-        request = Request(service=cls, subfunction=control_type)
-        request.data = struct.pack('>H', routine_id)
+        # if control_type == cls.ControlType.requestRoutineResults: 
+        cls._sid = 0x30 + control_type
+        request = Request(service=cls, subfunction=1) # control_type)
+        request.data = b'' ## GGG
+        # request.data = struct.pack('>H', routine_id)
         if data is not None:
             request.data += data
 
@@ -68,12 +71,14 @@ class RoutineControl(BaseService):
         :raises InvalidResponseException: If length of ``response.data`` is too short
         """
 
-        if len(response.data) < 3: 	
+        if len(response.data) < 1: ### GGGG era 3: 	
             raise InvalidResponseException(response, "Response data must be at least 3 bytes")
 
         response.service_data = cls.ResponseData()
-        response.service_data.control_type_echo = response.data[0]
-        response.service_data.routine_id_echo = struct.unpack(">H", response.data[1:3])[0]
+        ## GGG response.service_data.control_type_echo = response.data[0]
+        response.service_data.control_type_echo = cls._sid - 0x30 # GGG
+        ## GGG response.service_data.routine_id_echo = struct.unpack(">H", response.data[1:3])[0]
+        response.service_data.routine_id_echo = 1
         response.service_data.routine_status_record = response.data[3:] if len(response.data) >3 else b''
 
     class ResponseData(BaseResponseData):

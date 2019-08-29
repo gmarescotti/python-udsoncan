@@ -74,15 +74,15 @@ class RequestDownload(BaseService):
         if lfid > 8:
             raise NotImplementedError('This client does not support number bigger than %d bits' % (8*8))
 
-        if len(response.data) < lfid+1:
-            raise InvalidResponseException(response, "Length of data (%d) is too short to contains the number of block of given length (%d)" % (len(response.data), lfid))
+        # GGG if len(response.data) < lfid+1:
+        # GGG     raise InvalidResponseException(response, "Length of data (%d) is too short to contains the number of block of given length (%d)" % (len(response.data), lfid))
 
-        todecode = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00')
-        for i in range(1,lfid+1):
-            todecode[-i] = response.data[lfid+1-i]
+        #todecode = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00')
+        #for i in range(1,lfid+1):
+        #    todecode[-i] = response.data[lfid+1-i]
 
         response.service_data = cls.ResponseData()
-        response.service_data.max_length = struct.unpack('>q', todecode)[0]
+        #response.service_data.max_length = struct.unpack('>q', todecode)[0]
 
     class ResponseData(BaseResponseData):
         """
