@@ -6,9 +6,9 @@ class DiagnosticSessionControl(BaseService):
     _sid = 0x10
 
     supported_negative_response = [	Response.Code.SubFunctionNotSupported, 
-                                                                    Response.Code.IncorrectMessageLegthOrInvalidFormat,
-                                                                    Response.Code.ConditionsNotCorrect
-                                                                    ]
+                                        Response.Code.IncorrectMessageLegthOrInvalidFormat,
+                                        Response.Code.ConditionsNotCorrect
+                                        ]
     class Session(BaseSubfunction):
         """
         DiagnosticSessionControl defined subfunctions

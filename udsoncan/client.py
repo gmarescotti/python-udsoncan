@@ -164,6 +164,28 @@ class Client:
 
         return response
 
+    # Added for KWP2000 compatibility
+    @standard_error_management
+    def stop_diagnostic_session(self):
+        """
+        Sends a StopDiagnosticSession request to keep the session active.
+    
+        :dependent configuration: ``exception_on_<type>_response``
+    
+        :return: The server response parsed by :meth:`StopDiagnosticSession.interpret_response<StopDiagnosticSession.interpret_response>`
+        :rtype: :ref:`Response<Response>`
+        """
+        req = services.StopDiagnosticSession.make_request()
+    
+        self.logger.info('%s - Sending StopDiagnosticSession request' % (self.service_log_prefix(services.StopDiagnosticSession)))
+        response = self.send_request(req)
+        if response is None:
+            return
+    
+        services.StopDiagnosticSession.interpret_response(response)
+    
+        return response
+
     @standard_error_management
     def request_seed(self, level):
         """ 

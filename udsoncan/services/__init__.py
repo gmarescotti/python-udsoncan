@@ -209,3 +209,4 @@ from .RequestDownload import RequestDownload
 from .RequestUpload import RequestUpload
 from .TransferData import TransferData
 from .RequestTransferExit import RequestTransferExit
+from .StopDiagnosticSession import StopDiagnosticSession
