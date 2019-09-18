@@ -515,7 +515,7 @@ class PythonIsoTpConnection(BaseConnection):
                 while self.isotp_layer.available():
                     self.fromIsoTPQueue.put(self.isotp_layer.recv())
 
-                time.sleep(self.isotp_layer.sleep_time())
+                # time.sleep(self.isotp_layer.sleep_time()) # GGG speed up !
 
             except Exception as e:
                 self.exit_requested = True
