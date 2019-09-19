@@ -43,10 +43,12 @@ class BaseService(ABC):
 
     @classmethod	# Returns the service ID used for a client request
     def request_id(cls):
+        if not hasattr(cls, '_sid'): return 0
         return cls._sid
 
     @classmethod	# Returns the service ID used for a server response
     def response_id(cls):
+        if not hasattr(cls, '_sid'): return -1
         return cls._sid + 0x40
 
     @classmethod	# Returns an instance of the service identified by the service ID (Request)
