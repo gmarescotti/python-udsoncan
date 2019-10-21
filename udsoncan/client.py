@@ -299,6 +299,85 @@ class Client:
 
         return response
 
+    ### ADDED GGG
+    @standard_error_management
+    def read_local_data_by_identifier_first(self, didlist):
+        """
+        Shortcut to extract a single DID. 
+        Calls read_local_data_by_identifier then returns the first DID asked for. 
+
+        :dependent configuration: ``exception_on_<type>_response`` ``data_identifiers`` ``tolerate_zero_padding``
+
+        :param didlist: The list of DID to be read
+        :type didlist: list[int]
+
+        :return: The server response parsed by :meth:`LocalReadDataByIdentifier.interpret_response<udsoncan.services.LocalReadDataByIdentifier.interpret_response>`
+        :rtype: :ref:`Response<Response>`
+        """
+        didlist = services.LocalReadDataByIdentifier.validate_didlist_input(didlist)
+        response = self.read_local_data_by_identifier(didlist)
+        values = response.service_data.values
+        if len(values) > 0 and len(didlist) > 0:
+            return values[didlist[0]]
+
+    @standard_error_management
+    def read_local_data_by_identifier(self, didlist):
+        """
+        Requests a value associated with a local data identifier (DID) through the :ref:`LocalReadDataByIdentifier<LocalReadDataByIdentifier>` service.
+
+        :dependent configuration: ``exception_on_<type>_response`` ``data_identifiers`` ``tolerate_zero_padding``
+
+        See :ref:`an example<reading_a_did>` about how to read a DID
+
+        :param didlist: The list of DID to be read
+        :type didlist: list[int]
+
+        :return: The server response parsed by :meth:`LocalReadDataByIdentifier.interpret_response<udsoncan.services.LocalReadDataByIdentifier.interpret_response>`
+        :rtype: :ref:`Response<Response>`
+        """
+        didlist = services.LocalReadDataByIdentifier.validate_didlist_input(didlist)
+        req = services.LocalReadDataByIdentifier.make_request(didlist=didlist, didconfig=self.config['data_identifiers'])
+
+        if len(didlist) == 1:
+            self.logger.info("%s - Reading data identifier : 0x%04x (%s)" % (self.service_log_prefix(services.LocalReadDataByIdentifier), didlist[0], DataIdentifier.name_from_id(didlist[0])))
+        else:
+            self.logger.info("%s - Reading %d data identifier : %s" % (self.service_log_prefix(services.LocalReadDataByIdentifier), len(didlist), didlist))
+
+        if 'data_identifiers' not in self.config or  not isinstance(self.config['data_identifiers'], dict):
+            raise AttributeError('Configuration does not contains a valid data identifier description.')
+
+        response = self.send_request(req)
+        if response is None:
+            return
+
+        params = {
+                'didlist' : didlist, 
+                'didconfig' : self.config['data_identifiers'],
+                'tolerate_zero_padding' : self.config['tolerate_zero_padding']
+                }
+
+        try:
+            services.LocalReadDataByIdentifier.interpret_response(response, **params)
+        except ConfigError as e:
+            if e.key in didlist:
+                raise
+            else:
+                raise UnexpectedResponseException(response, "Server returned values for data identifier 0x%04x that was not requested and no Codec was defined for it. Parsing must be stopped." % (e.key))
+
+        set_request_didlist = set(didlist)
+        set_response_didlist = set(response.service_data.values.keys())
+        extra_did  = set_response_didlist - set_request_didlist
+        missing_did  = set_request_didlist - set_response_didlist
+
+        if len(extra_did) > 0:
+            raise UnexpectedResponseException(response, "Server returned values for %d data identifier that were not requested. Dids are : %s" % (len(extra_did), extra_did))
+
+        if len(missing_did) > 0:
+            raise UnexpectedResponseException(response, "%d data identifier values are missing from server response. Dids are : %s" % (len(missing_did), missing_did))
+
+        return response
+    ### ADDED GGG
+
     @standard_error_management
     def read_data_by_identifier_first(self, didlist):
         """
