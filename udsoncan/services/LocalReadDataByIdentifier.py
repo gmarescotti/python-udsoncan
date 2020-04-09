@@ -10,7 +10,7 @@ class LocalReadDataByIdentifier(ReadDataByIdentifier, BaseService):
 		from udsoncan import Request
 		didlist = cls.validate_didlist_input(didlist)
 		req = Request(cls)
-		ServiceHelper.check_did_config(didlist, didconfig)
+		ServiceHelper.check_did_config(didlist[:1], didconfig) # TRICK SID21 ARGS
 		req.data = struct.pack('>'+'B'*len(didlist), *didlist) #Encode list of DID
 		return req
 	@classmethod

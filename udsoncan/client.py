@@ -335,7 +335,7 @@ class Client:
         :return: The server response parsed by :meth:`LocalReadDataByIdentifier.interpret_response<udsoncan.services.LocalReadDataByIdentifier.interpret_response>`
         :rtype: :ref:`Response<Response>`
         """
-        didlist = services.LocalReadDataByIdentifier.validate_didlist_input(didlist)
+        # didlist = services.LocalReadDataByIdentifier.validate_didlist_input(didlist) # SID21 TRICK ARGS
         req = services.LocalReadDataByIdentifier.make_request(didlist=didlist, didconfig=self.config['data_identifiers'])
 
         if len(didlist) == 1:
@@ -351,7 +351,7 @@ class Client:
             return
 
         params = {
-                'didlist' : didlist, 
+                'didlist' : didlist[:1],  # TRICK SID21 ARGS
                 'didconfig' : self.config['data_identifiers'],
                 'tolerate_zero_padding' : self.config['tolerate_zero_padding']
                 }
@@ -364,8 +364,7 @@ class Client:
             else:
                 raise UnexpectedResponseException(response, "Server returned values for data identifier 0x%04x that was not requested and no Codec was defined for it. Parsing must be stopped." % (e.key))
 
-        # faccio che gestisco solo un did alla volta e considero dids[1:] come i paramteri del did[0] inviato!
-        set_request_didlist = set(didlist[:1])
+        set_request_didlist = set(didlist[:1]) # TRICK SID21 ARGS 
         # set_request_didlist = set(didlist)
         set_response_didlist = set(response.service_data.values.keys())
         extra_did  = set_response_didlist - set_request_didlist
