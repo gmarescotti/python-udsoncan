@@ -198,7 +198,7 @@ class Client:
 
         :return: The server response parsed by :meth:`SecurityAccess.interpret_response<udsoncan.services.SecurityAccess.interpret_response>`
         :rtype: :ref:`Response<Response>`
-        """		
+        """        
         req = services.SecurityAccess.make_request(level, mode=services.SecurityAccess.Mode.RequestSeed)
 
         self.logger.info('%s - Requesting seed to unlock security access level 0x%02x' % (self.service_log_prefix(services.SecurityAccess), req.subfunction))	# level may be corrected by service.
@@ -233,7 +233,7 @@ class Client:
 
         :return: The server response parsed by :meth:`SecurityAccess.interpret_response<udsoncan.services.SecurityAccess.interpret_response>`
         :rtype: :ref:`Response<Response>`
-        """			
+        """            
         req = services.SecurityAccess.make_request(level, mode=services.SecurityAccess.Mode.SendKey, key=key)
         self.logger.info('%s - Sending key to unlock security access level 0x%02x' % (self.service_log_prefix(services.SecurityAccess), req.subfunction))
         self.logger.debug('\tKey to send [%s]' % (binascii.hexlify(key)))
@@ -364,14 +364,16 @@ class Client:
             else:
                 raise UnexpectedResponseException(response, "Server returned values for data identifier 0x%04x that was not requested and no Codec was defined for it. Parsing must be stopped." % (e.key))
 
-        set_request_didlist = set(didlist)
+        # faccio che gestisco solo un did alla volta e considero dids[1:] come i paramteri del did[0] inviato!
+        set_request_didlist = set(didlist[:1])
+        # set_request_didlist = set(didlist)
         set_response_didlist = set(response.service_data.values.keys())
         extra_did  = set_response_didlist - set_request_didlist
         missing_did  = set_request_didlist - set_response_didlist
-
+ 
         if len(extra_did) > 0:
             raise UnexpectedResponseException(response, "Server returned values for %d data identifier that were not requested. Dids are : %s" % (len(extra_did), extra_did))
-
+ 
         if len(missing_did) > 0:
             raise UnexpectedResponseException(response, "%d data identifier values are missing from server response. Dids are : %s" % (len(missing_did), missing_did))
 
@@ -984,7 +986,7 @@ class Client:
 
         request = services.InputOutputControlByIdentifier.make_request( did, control_param=control_param, values=values, masks=masks, ioconfig=self.config['input_output'])
 
-        control_param_str = 'no control parameter' if control_param is None else 'control parameter 0x%02x (%s)' % (control_param, services.InputOutputControlByIdentifier.ControlParam.get_name(control_param))		
+        control_param_str = 'no control parameter' if control_param is None else 'control parameter 0x%02x (%s)' % (control_param, services.InputOutputControlByIdentifier.ControlParam.get_name(control_param))        
         self.logger.info('%s - Sending request for DID=0x%04x, %s.' % (self.service_log_prefix(services.InputOutputControlByIdentifier), did, control_param_str))
 
         response = self.send_request(request)
@@ -996,7 +998,7 @@ class Client:
             raise UnexpectedResponseException(response, "Echo of the DID number (0x%04x) does not match the value in the request (0x%04x)" % (response.service_data.did_echo, did))
 
         if control_param != response.service_data.control_param_echo:
-            raise UnexpectedResponseException(response, 'Echo of the InputOutputControlParameter (0x%02x) does not match the value in the request (0x%02x)' % (response.service_data.control_param_echo, control_param))	
+            raise UnexpectedResponseException(response, 'Echo of the InputOutputControlParameter (0x%02x) does not match the value in the request (0x%02x)' % (response.service_data.control_param_echo, control_param))    
 
         return response
 
@@ -1487,7 +1489,7 @@ class Client:
         services.ReadDTCInformation.interpret_response(response, **response_params)
 
         if response.service_data.subfunction_echo != subfunction:
-            raise UnexpectedResponseException(response, 'Echo of ReadDTCInformation subfunction gotten from server(0x%02x) does not match the value in the request subfunction (0x%02x)' % (response.service_data.subfunction_echo, subfunction))	
+            raise UnexpectedResponseException(response, 'Echo of ReadDTCInformation subfunction gotten from server(0x%02x) does not match the value in the request subfunction (0x%02x)' % (response.service_data.subfunction_echo, subfunction))    
 
         if subfunction == services.ReadDTCInformation.Subfunction.reportDTCSnapshotRecordByDTCNumber:
             if len(response.service_data.dtcs) == 1:
@@ -1503,7 +1505,7 @@ class Client:
         if subfunction in [services.ReadDTCInformation.Subfunction.reportDTCExtendedDataRecordByDTCNumber, services.ReadDTCInformation.Subfunction.reportMirrorMemoryDTCExtendedDataRecordByDTCNumber]:
             if len(response.service_data.dtcs) == 1 and extended_data_record_number < 0xF0: # Standard specifies that values between 0xF0 and 0xFF are for reporting groups (more than one record)
                 for extended_data in response.service_data.dtcs[0].extended_data:
-                    if extended_data.record_number != extended_data_record_number :	
+                    if extended_data.record_number != extended_data_record_number :    
                         raise UnexpectedResponseException(response, 'Extended data record number given by the server (0x%02x) does not match the record number requested by the client (0x%02x)' % (extended_data.record_number, extended_data_record_number))
 
         for dtc in response.service_data.dtcs:
@@ -1551,14 +1553,14 @@ class Client:
             self.logger.debug("Waiting for server response")
 
             try:
-                if time.time() + single_request_timeout < overall_timeout_time:	
+                if time.time() + single_request_timeout < overall_timeout_time:    
                     timeout_type_used 	= 'single_request'
                     timeout_value 		= single_request_timeout
-                else:	
+                else:    
                     timeout_type_used 	= 'overall'
                     timeout_value 		= max(overall_timeout_time - time.time(), 0)
 
-                payload = self.conn.wait_frame(timeout=timeout_value, exception=True)	
+                payload = self.conn.wait_frame(timeout=timeout_value, exception=True)    
             except TimeoutException:
                 if timeout_type_used == 'single_request':
                     timeout_name_to_report = 'P2* timeout' if using_p2_star else 'P2 timeout'
