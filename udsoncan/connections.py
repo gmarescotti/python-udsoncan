@@ -510,7 +510,11 @@ class PythonIsoTpConnection(BaseConnection):
                 while not self.toIsoTPQueue.empty():
                     self.isotp_layer.send(self.toIsoTPQueue.get())
 
-                self.isotp_layer.process()
+                try:
+                    self.isotp_layer.process()
+                except:
+                    self.logger.exception("process")
+                    raise
 
                 while self.isotp_layer.available():
                     self.fromIsoTPQueue.put(self.isotp_layer.recv())
@@ -519,4 +523,4 @@ class PythonIsoTpConnection(BaseConnection):
 
             except Exception as e:
                 self.exit_requested = True
-                self.logger.error(str(e))
+                self.logger.exception(str(e))
